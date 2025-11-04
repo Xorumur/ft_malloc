@@ -3,6 +3,41 @@
 #include <sys/mman.h>
 #include <stdio.h>
 
+static int all_blocks_free(t_zone *zone)
+{
+    t_block *block = zone->blocks;
+    while (block)
+    {
+        if (!block->is_free)
+            return 0;
+        block = block->next;
+    }
+    return 1;
+}
+
+static void try_unmap_zone(t_zone **head)
+{
+    t_zone *zone = *head;
+    t_zone *prev = NULL;
+
+    while (zone)
+    {
+        if (all_blocks_free(zone))
+        {
+            if (prev)
+                prev->next = zone->next;
+            else
+                *head = zone->next;
+
+            munmap(zone->start, zone->size);
+            return; // stop après un unmap, ou continue selon design
+        }
+        prev = zone;
+        zone = zone->next;
+    }
+}
+
+
 int	is_managed_pointer(void *ptr)
 {
 	t_zone *zone;
