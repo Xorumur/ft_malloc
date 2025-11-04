@@ -2,8 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 
-void print_zones_state(void);
-
 /**
  * Petit test pour la qualité du free
  */
