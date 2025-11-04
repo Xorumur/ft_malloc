@@ -1,5 +1,4 @@
 #include "../include/malloc.h"
-#include <string.h> // memcpy
 
 void *realloc(void *ptr, size_t size)
 {
@@ -8,6 +7,8 @@ void *realloc(void *ptr, size_t size)
 
 	if (!ptr)
 		return malloc(size);
+	if (!is_managed_pointer(ptr))
+		return NULL;
 	if (size == 0)
 	{
 		free(ptr);
@@ -30,7 +31,7 @@ void *realloc(void *ptr, size_t size)
 	if (!new_ptr)
 		return NULL;
 
-	memcpy(new_ptr, ptr, block->size);
+	ft_memcpy(new_ptr, ptr, block->size);
 	free(ptr);
 
 	return new_ptr;

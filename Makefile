@@ -8,7 +8,7 @@ PATH_SRC  = src
 PATH_INC  = include
 PATH_OBJ  = obj
 
-SOURCES   = malloc.c free.c show_alloc_mem.c realloc.c
+SOURCES   = malloc.c free.c show_alloc_mem.c realloc.c ./utils/libft.c ./utils/heap_managment.c zone.c
 OBJECTS   = $(addprefix $(PATH_OBJ)/, $(SOURCES:.c=.o))
 
 CC        = gcc
@@ -33,7 +33,7 @@ run: main
 
 # Dossier des tests
 EVAL_DIR  = evaluation
-TESTS     = test0 test1 test2 test3 test4 test5 test6
+TESTS     = test0 test1 test2 test3 test4 test5 test6 test7
 
 # Règle générique pour compiler un test
 $(TESTS): %: $(EVAL_DIR)/%.c $(NAME)
@@ -47,7 +47,7 @@ run_%: %
 
 clean:
 	rm -rf $(PATH_OBJ)
-	
+
 fclean: clean
 	rm -f $(NAME) $(LIB_NAME) main $(TESTS)
 

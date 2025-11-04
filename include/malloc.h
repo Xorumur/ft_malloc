@@ -6,10 +6,12 @@
 # include <sys/mman.h>
 # include <pthread.h>
 
-#define TINY_ZONE_SIZE (getpagesize() * 32)   // ou plus
-#define SMALL_ZONE_SIZE (getpagesize() * 128)
-#define TINY_LIMIT 512
-#define SMALL_LIMIT 2048
+// #define TINY_ZONE_SIZE (getpagesize() * 32)   // ou plus
+// #define SMALL_ZONE_SIZE (getpagesize() * 128)
+#define TINY_ZONE_SIZE (getpagesize() * 16)   // ou même *16
+#define SMALL_ZONE_SIZE (getpagesize() * 52)  // ou *32
+#define TINY_LIMIT (TINY_ZONE_SIZE / 128)
+#define SMALL_LIMIT (SMALL_ZONE_SIZE / 128)
 
 
 typedef struct s_block
@@ -42,17 +44,23 @@ typedef struct s_malloc_env
 } t_malloc_env;
 
 
-void	*malloc(size_t size);
-void	free(void *ptr);
-void	*realloc(void *ptr, size_t size);
-void show_alloc_mem(void) __attribute__((visibility("default")));
+void		*malloc(size_t size);
+void		free(void *ptr);
+void		*realloc(void *ptr, size_t size);
+void 		show_alloc_mem(void) __attribute__((visibility("default")));
 
-// zone helpers
-t_zone_type	get_zone_type(size_t size);
-size_t		get_zone_size(t_zone_type type);
-t_zone		*create_zone(t_zone_type type);
+
+t_zone *create_zone(size_t size);
+void fill_zone_with_blocks(t_zone *zone, size_t requested_size);
+void split_block(t_block *block, size_t aligned_size);
 t_block		*find_free_block(t_zone *zone, size_t size);
 t_block		*add_block_to_zone(t_zone *zone, size_t size);
+void		*ft_memcpy(void *dst, const void *src, size_t n);
+int			is_managed_pointer(void *ptr);
+
+int	ft_strlen(char *str);
+void	ft_putnbr(int nb);
+void	ft_putstr(char *s);
 
 extern t_malloc_env g_malloc;
 
