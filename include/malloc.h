@@ -66,6 +66,7 @@ void *realloc(void *ptr, size_t size);
 
 // Fonction de débogage
 void show_alloc_mem(void);
+void print_zones_state(void); 
 
 void	*ft_memcpy(void *dst, const void *src, size_t n);
 int		ft_strlen(char *str);
