@@ -30,7 +30,12 @@ static void try_unmap_zone(t_zone **head)
                 *head = zone->next;
 
             munmap(zone->start, zone->size);
-            return; // stop après un unmap, ou continue selon design
+            if (prev)
+				prev->next = zone->next;
+			else
+				*head = zone->next;
+			zone = (prev ? prev->next : *head);
+			continue; // on continue le parcours; // stop après un unmap, ou continue selon design
         }
         prev = zone;
         zone = zone->next;
