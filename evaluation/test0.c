@@ -1,12 +1,14 @@
-int	main(void)
-{
-	int		i;
-	char	*addr;
+#include <stdlib.h>
 
-	i = 0;
-	while (i < 1024)
-	{
-		i++;
-	}
-	return (0);
+int      main(void)
+{
+    int   i;
+    char  *addr;
+
+    i = 0; 
+    while (i < 1024) 
+    {
+        i++;
+    } 
+    return (0); 
 }

@@ -3,6 +3,28 @@
 #include <sys/mman.h>
 #include <stdio.h>
 
+int	is_managed_pointer(void *ptr)
+{
+	t_zone *zone;
+	t_block *block;
+
+	for (zone = g_malloc.tiny; zone; zone = zone->next)
+		for (block = zone->blocks; block; block = block->next)
+			if ((void *)(block + 1) == ptr)
+				return 1;
+
+	for (zone = g_malloc.small; zone; zone = zone->next)
+		for (block = zone->blocks; block; block = block->next)
+			if ((void *)(block + 1) == ptr)
+				return 1;
+
+	for (zone = g_malloc.large; zone; zone = zone->next)
+		if ((void *)(zone->blocks + 1) == ptr)
+			return 1;
+
+	return 0;
+}
+
 /**
  * Vérifie qu'un bloc est valide.
  */
@@ -41,19 +63,33 @@ static void	free_large(void *ptr)
  */
 void	free(void *ptr)
 {
-	if (!ptr || is_managed_pointer(ptr))
+	if (!ptr)
 		return;
 
-	t_block *block = ((t_block *)ptr) - 1;
-
-	pthread_mutex_lock(&g_malloc.lock);
-
-	if (!is_valid_block(block))
-	{
-		pthread_mutex_unlock(&g_malloc.lock);
+	if (!is_managed_pointer(ptr)) {
+		// printf("[DEBUG] invalid pointer\n");
 		return;
 	}
 
+
+	t_block *block = ((t_block *)ptr) - 1;
+
+	// printf("[DEBUG] free: ptr=%p, block=%p, size=%zu\n", ptr, block, block->size);
+
+	if (!is_valid_block(block))
+	{
+		// printf("[DEBUG] block not valid\n");
+		return;
+	}
+
+	if (find_block(&g_malloc.tiny, block) || find_block(&g_malloc.small, block)) {
+		// Si le bloc appartient à TINY ou SMALL, on le marque comme libre
+		// printf("[DEBUG] block found in TINY/SMALL, marking as free\n");
+		block->is_free = 1;
+		return;
+	}
+
+	// printf("[DEBUG] block not found in TINY/SMALL, marking as free anyway\n");
 	block->is_free = 1;
 
 	// Si bloc appartient à LARGE → unmap
@@ -62,12 +98,11 @@ void	free(void *ptr)
 	{
 		if (zone->blocks == block)
 		{
-			pthread_mutex_unlock(&g_malloc.lock);
+			// printf("[DEBUG] block is LARGE, unmapping\n");
 			free_large(ptr);
 			return;
 		}
 		zone = zone->next;
 	}
 
-	pthread_mutex_unlock(&g_malloc.lock);
 }

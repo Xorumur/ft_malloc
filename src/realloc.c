@@ -1,4 +1,5 @@
 #include "../include/malloc.h"
+#include <stdio.h>
 
 void *realloc(void *ptr, size_t size)
 {
@@ -17,15 +18,15 @@ void *realloc(void *ptr, size_t size)
 
 	block = ((t_block *)ptr) - 1;
 
-	pthread_mutex_lock(&g_malloc.lock);
+	if (block == NULL) {
+		return NULL;
+	}
+
 
 	if (block->size >= size)
 	{
-		pthread_mutex_unlock(&g_malloc.lock);
 		return ptr;
 	}
-
-	pthread_mutex_unlock(&g_malloc.lock);
 
 	new_ptr = malloc(size);
 	if (!new_ptr)

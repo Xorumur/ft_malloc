@@ -8,7 +8,7 @@ PATH_SRC  = src
 PATH_INC  = include
 PATH_OBJ  = obj
 
-SOURCES   = malloc.c free.c show_alloc_mem.c realloc.c ./utils/libft.c ./utils/heap_managment.c zone.c
+SOURCES   = malloc.c utils.c zone.c show_alloc_mem.c libft.c free.c realloc.c
 OBJECTS   = $(addprefix $(PATH_OBJ)/, $(SOURCES:.c=.o))
 
 CC        = gcc
@@ -41,7 +41,8 @@ $(TESTS): %: $(EVAL_DIR)/%.c $(NAME)
 
 # Règle pour lancer un test
 run_%: %
-	LD_LIBRARY_PATH=. ./$<
+	LD_LIBRARY_PATH=.
+	LD_PRELOAD=./$(NAME) ./$<
 
 # Exemple : make run_test0 → compile et exécute test0
 

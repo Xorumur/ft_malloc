@@ -2,8 +2,22 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdio.h>
 
+void check_zone_capacities(void) {
+    size_t tiny_needed = sizeof(t_zone) + 100 * (TINY_LIMIT + sizeof(t_block));
+    size_t small_needed = sizeof(t_zone) + 100 * (SMALL_LIMIT + sizeof(t_block));
 
+    if ((size_t)TINY_ZONE_SIZE < tiny_needed)
+        printf("Warning: TINY_ZONE_SIZE too small! (%lu < %zu)\n", (size_t)TINY_ZONE_SIZE, (size_t)tiny_needed);
+    else
+        printf("TINY_ZONE_SIZE OK\n");
+
+    if ((size_t)SMALL_ZONE_SIZE < small_needed)
+        printf("Warning: SMALL_ZONE_SIZE too small! (%lu < %zu)\n", (size_t)SMALL_ZONE_SIZE, (size_t)small_needed);
+    else
+        printf("SMALL_ZONE_SIZE OK\n");
+}
 
 // Convertit un nombre en base 10 vers une chaîne de caractères (terminée par '\0')
 static int utoa_dec(char *buf, size_t n)
@@ -51,7 +65,7 @@ static void write_line(char *s)
 	write(2, "\n", 1);
 }
 
-static void write_alloc(void *start, void *end, size_t size)
+static void write_alloc(void *start, void *end, size_t size, int is_free)
 {
 	char buf[256];
 	int len = 0;
@@ -70,27 +84,30 @@ static void write_alloc(void *start, void *end, size_t size)
 	ft_memcpy(buf + len, size_buf, size_len);
 	len += size_len;
 
-	ft_memcpy(buf + len, " bytes\n", 7);
+	ft_memcpy(buf + len, " bytes ", 7);
 	len += 7;
+	if (is_free)
+		ft_memcpy(buf + len, "FREE\n", 5), len += 5;
+	else
+		ft_memcpy(buf + len, "USED\n", 5), len += 5;
 
 	write(2, buf, len);
 }
 
 static void print_zone(char *label, t_zone *zone, size_t *total)
 {
+	
 	while (zone)
 	{
 		write_line(label);
 		t_block *block = zone->blocks;
 		while (block)
 		{
+			void *start = (void *)(block + 1);
+			void *end = (void *)((char *)start + block->size);
+			write_alloc(start, end, block->size, block->is_free);
 			if (!block->is_free)
-			{
-				void *start = (void *)(block + 1);
-				void *end = (void *)((char *)start + block->size);
-				write_alloc(start, end, block->size);
 				*total += block->size;
-			}
 			block = block->next;
 		}
 		zone = zone->next;
@@ -115,4 +132,6 @@ void show_alloc_mem(void)
 	write(2, buf, len);
 
 	pthread_mutex_unlock(&g_malloc.lock);
+
+	// check_zone_capacities();
 }

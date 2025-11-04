@@ -1,25 +1,26 @@
-#include <strings.h>
-#include <stdlib.h>
+#include "./include/malloc.h"
 
-#define M 1024 * 1024
+#define M (1024 * 1024)
 
-void	print(char *s)
+int main()
 {
-	write(1, s, strlen(s));
-}
-
-int		main(void)
-{
-	char *addr1;
-	char *addr2;
-	char *addr3;
-
-	addr1 = malloc(16 * M);
-	strcpy(addr1, "Bonjours\n");
-	print(addr1);
-	addr2 = malloc(16 * M);
-	addr3 = realloc(addr1, 128 * M);
-	addr3[127 * M] = 42;
-	print(addr3);
-	return (0);
+    void* a = malloc(1);
+    void* b = malloc(2);
+    void* c = malloc(4);
+    void* d = malloc(8);
+    void* e = malloc(16);
+    void* f = malloc(32);
+    void* g = malloc(64);
+    void* h = malloc(128);
+    void* i = malloc(256);
+    void* j = malloc(512);
+    void* k = malloc(1024);
+    void* l = malloc(1024 * 2);
+    void* m = malloc(1024 * 4); 
+    void* n = malloc(1024 * 32);
+    void* o = malloc(M);
+    void* p = malloc(16*M);
+    void* q = malloc(128*M);
+    show_alloc_mem(); 
+    return (0); 
 }
