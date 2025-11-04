@@ -86,6 +86,10 @@ void	free(void *ptr)
 		// Si le bloc appartient à TINY ou SMALL, on le marque comme libre
 		// printf("[DEBUG] block found in TINY/SMALL, marking as free\n");
 		block->is_free = 1;
+		if (find_block(&g_malloc.tiny, block))
+			try_unmap_zone(&g_malloc.tiny);
+		else if (find_block(&g_malloc.small, block))
+			try_unmap_zone(&g_malloc.small);
 		return;
 	}
 
